@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.0.2'
+VERSION = '0.0.1.beta'
 PACKAGE_NAME = 'clicksign_api_wrapper'
 AUTHOR = 'LsM'
 AUTHOR_EMAIL = 'lucas.smar@gmail.com'

@@ -4,6 +4,6 @@ if twine check dist/* ; then
   if [ "$1" = "--test" ] ; then
     twine upload --repository-url https://test.pypi.org/legacy/ dist/*
   else
-    twine upload dist/* ;
+    twine upload --skip-existing dist/* ;
   fi
 fi
