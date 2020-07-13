@@ -1,9 +1,13 @@
+from __future__ import annotations
+from typing import Dict
+
 
 class SignatureAuthTypes():
     API = 'api'
     EMAIL = 'email'
-    SMS = 'sms' 
-    WHATSAPP = 'whatsapp' 
+    SMS = 'sms'
+    WHATSAPP = 'whatsapp'
+
 
 class SignatureAsTypes():
     """
@@ -32,27 +36,40 @@ class SignatureAsTypes():
     - validator: Assinar como validador
     - ratify: Assinar para homologar
     """
-    ACKNOWLEDGE   = 'acknowledge'
+    ACKNOWLEDGE = 'acknowledge'
     ADMINISTRATOR = 'administrator'
-    APPROVE  = 'approve'
+    APPROVE = 'approve'
     ATTORNEY = 'attorney'
     BUYER = 'buyer'
     CO_RESPONSIBLE = 'co_responsible'
     CONTRACTEE = 'contractee'
     CONTRACTOR = 'contractor'
     ENDORSEE = 'endorsee'
-    ENDORSER ='endorser'
+    ENDORSER = 'endorser'
     GUARANTOR = 'guarantor'
-    INTERVENING  = 'intervening'
+    INTERVENING = 'intervening'
     ISSUER = 'issuer'
     JOINT_DEBTOR = 'joint_debtor'
     LEGAL_REPRESENTATIVE = 'legal_representative'
     MANAGER = 'manager'
     PARTY = 'party'
     RATIFY = 'ratify'
-    RECEIPT  = 'receipt'
+    RECEIPT = 'receipt'
     SELLER = 'seller'
-    SIGN  = 'sign'
+    SIGN = 'sign'
     TRANSFEROR = 'transferor'
     VALIDATOR = 'validator'
-    WITNESS  = 'witness'
+    WITNESS = 'witness'
+
+
+class Signer:
+    def __init__(self,
+                 click_sign: 'ClickSign',
+                 metadata: Dict = None,
+                 signer_key: str = None):
+        self.click_sign = click_sign
+        if signer_key and not metadata:
+            self.signer_key = signer_key
+        if metadata:
+            for key, item in metadata["signer"].items():
+                setattr(self, key, item)
