@@ -1,7 +1,6 @@
-import requests
 from .batch import Batch
 from .document import Document
-from .exceptions import Forbidden, UnProcessableEntity, check_response
+from .exceptions import Forbidden, UnProcessableEntity, make_response
 from .list_class import ListClass
 from .signer import SignatureAuthTypes, Signer, SignatureAsTypes
 from typing import Dict, List
@@ -61,8 +60,10 @@ class ClickSign:
         Returns:
             Dict: Some data about the account, that is related with the provide token
         """
-        resp = check_response(
-            requests.get(self.__url('accounts'), params=self.query_string))
+        resp = make_response("GET",
+                             url=self.__url('accounts'),
+                             params=self.query_string,
+                             timeout=self.timeout)
         return resp.json()
 
     def create_new_batch(self,
@@ -96,10 +97,11 @@ class ClickSign:
             }
         }
 
-        resp = check_response(
-            requests.post(self.__url('batches'),
-                          json=body,
-                          params=self.query_string))
+        resp = make_response("POST",
+                             url=self.__url('batches'),
+                             json=body,
+                             params=self.query_string,
+                             timeout=self.timeout)
         metadata = resp.json()
         return Batch(metadata)
 
@@ -117,8 +119,10 @@ class ClickSign:
         Returns:
             List[Document]: All Documents
         """
-        resp = check_response(
-            requests.get(self.__url(f'documents'), params=self.query_string))
+        resp = make_response(method="GET",
+                             url=self.__url(f'documents'),
+                             params=self.query_string,
+                             timeout=self.timeout)
         list_of_metadata = resp.json()['documents']
         return list(
             map(lambda metadata: Document(self, {'document': metadata}),
@@ -141,9 +145,10 @@ class ClickSign:
         Returns:
             Document: The required Document
         """
-        resp = check_response(
-            requests.get(self.__url(f'documents/{document_key}'),
-                         params=self.query_string))
+        resp = make_response(method="GET",
+                             url=self.__url(f'documents/{document_key}'),
+                             params=self.query_string,
+                             timeout=self.timeout)
         metadata = resp.json()
 
         return Document(self, metadata)
@@ -193,10 +198,11 @@ class ClickSign:
 
         body = self.__generate_body_for_sign_via_api(request_signature_key,
                                                      secret)
-        resp = check_response(
-            requests.post(self.__url(f'sign'),
-                          json=body,
-                          params=self.query_string))
+        resp = make_response(method="POST",
+                             url=self.__url(f'sign'),
+                             json=body,
+                             params=self.query_string,
+                             timeout=self.timeout)
         return True
 
     #region ### Document Methods ###
@@ -228,10 +234,12 @@ class ClickSign:
 
         body = {'document': {'path': doc_path, 'template': {'data': data}}}
 
-        resp = check_response(
-            requests.post(self.__url(f'templates/{template_key}/documents'),
-                          json=body,
-                          params=self.query_string))
+        resp = make_response(
+            method="POST",
+            url=self.__url(f'templates/{template_key}/documents'),
+            json=body,
+            params=self.query_string,
+            timeout=self.timeout)
         metadata = resp.json()
         return Document(self, metadata)
 
@@ -253,10 +261,11 @@ class ClickSign:
         Returns:
             Document: The Document with the new configuration. 
         """
-        resp = check_response(
-            requests.patch(self.__url(f'documents/{document_key}'),
-                           json=locals().get('kwargs'),
-                           params=self.query_string))
+        resp = make_response(method="PATCH",
+                             url=self.__url(f'documents/{document_key}'),
+                             json=locals().get('kwargs'),
+                             params=self.query_string,
+                             timeout=self.timeout)
         metadata = resp.json()
 
         return Document(self, metadata)
@@ -278,9 +287,11 @@ class ClickSign:
         Returns:
             Document: The Document that was finalized 
         """
-        resp = check_response(
-            requests.patch(self.__url(f'documents/{document_key}/finish'),
-                           params=self.query_string))
+        resp = make_response(
+            method="PATCH",
+            url=self.__url(f'documents/{document_key}/finish'),
+            params=self.query_string,
+            timeout=self.timeout)
         metadata = resp.json()
         return Document(self, metadata)
 
@@ -301,9 +312,11 @@ class ClickSign:
         Returns:
             Document: The Document that was cancelled
         """
-        resp = check_response(
-            requests.patch(self.__url(f'documents/{document_key}/cancel'),
-                           params=self.query_string))
+        resp = make_response(
+            method="PATCH",
+            url=self.__url(f'documents/{document_key}/cancel'),
+            params=self.query_string,
+            timeout=self.timeout)
         metadata = resp.json()
         return Document(self, metadata)
 
@@ -324,9 +337,10 @@ class ClickSign:
         Returns:
             bool: The result of the operation
         """
-        resp = check_response(
-            requests.delete(self.__url(f'documents/{document_key}'),
-                            params=self.query_string))
+        resp = make_response(method="DELETE",
+                             url=self.__url(f'documents/{document_key}'),
+                             params=self.query_string,
+                             timeout=self.timeout)
         metadata = None
         document_key = None
         return True
@@ -380,13 +394,41 @@ class ClickSign:
         if delivery:
             body['signer']['delivery'] = delivery
 
-        resp = check_response(
-            requests.post(self.__url('signers'),
-                          json=body,
-                          params=self.query_string))
+        resp = make_response(method="POST",
+                             url=self.__url('signers'),
+                             json=body,
+                             params=self.query_string,
+                             timeout=self.timeout)
         metadata = resp.json()
         return Signer(self, metadata)
 
+    def get_signer(self, signer_key: str) -> Signer:
+        """Get an existing signer 
+
+        Args:
+            signer_key (str): The key of the signer to get
+
+        Raises:
+            BadRequest: Bad request, check your request
+            Unauthorized: Invalid token
+            Forbidden: You do not have permition to this resource. 
+            NotFound: Resource not found. Check the endpoint
+            UnProcessableEntity: The server was unable to process the request
+            UnknownServerError: Internal server error
+        
+        Returns:
+            Signer: The requests signer
+        """
+        resp = make_response(method="GET",
+                             url=self.__url(f'signers/{signer_key}'),
+                             params=self.query_string,
+                             timeout=self.timeout)
+        metadata = resp.json()
+        return Signer(self, metadata)
+
+    #endregion ### Signer Methods ###
+
+    #region ### List Class Methods ###
     def add_signer_to_document(self, document_key: str, signer_key: str,
                                sign_as: SignatureAsTypes) -> ListClass:
         """Add a signer to a document  
@@ -414,18 +456,20 @@ class ClickSign:
                 "sign_as": sign_as
             }
         }
-        resp = check_response(
-            requests.post(self.__url('lists'),
-                          json=body,
-                          params=self.query_string))
+        resp = make_response(method="POST",
+                             url=self.__url('lists'),
+                             json=body,
+                             params=self.query_string,
+                             timeout=self.timeout)
+
         metadata = resp.json()
         return ListClass(metadata)
 
-    def get_signer(self, signer_key: str) -> Signer:
-        """Get an existing signer 
+    def remove_signer_from_document(self, list_key: str) -> bool:
+        """Remove signer from document
 
         Args:
-            signer_key (str): The key of the signer to get
+            list_key (str): The key of the list related to this signer in the document. (Available inside document )
 
         Raises:
             BadRequest: Bad request, check your request
@@ -436,14 +480,12 @@ class ClickSign:
             UnknownServerError: Internal server error
         
         Returns:
-            Signer: The requests signer
+            bool: The result of the operation
         """
-        resp = check_response(
-            requests.get(self.__url(f'signers/{signer_key}'),
-                         params=self.query_string))
-        metadata = resp.json()
-        return Signer(self, metadata)
+        resp = make_response(method="DELETE",
+                             url=self.__url(f'lists/{list_key}'),
+                             params=self.query_string,
+                             timeout=self.timeout)
+        return True
 
-    # def remove_signer_from_document(self, )
-
-    #endregion ### Signer Methods ###
+    #endregion ### List Class Methods ###
