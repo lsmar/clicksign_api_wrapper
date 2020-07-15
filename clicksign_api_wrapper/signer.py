@@ -3,6 +3,12 @@ from typing import Dict
 
 
 class SignatureAuthTypes():
+    """Methods of sign auth:
+    - API: Via API
+    - EMAIL: Via e-mail
+    - SMS: Via SMS
+    - WHATSAPP: Via whatsapp
+    """
     API = 'api'
     EMAIL = 'email'
     SMS = 'sms'
@@ -10,31 +16,32 @@ class SignatureAuthTypes():
 
 
 class SignatureAsTypes():
-    """
-    - sign: Assinar
-    - approve: Assinar para aprovar
-    - party: Assinar como parte
-    - witness: Assinar como testemunha
-    - intervening: Assinar como interveniente
-    - receipt: Assinar para acusar recebimento
-    - endorser: Assinar como endossante
-    - endorsee: Assinar como endossatário
-    - administrator: Assinar como administrador
-    - guarantor: Assinar como avalista
-    - transferor: Assinar como cedente
-    - transferee: Assinar como cessionário
-    - contractee: Assinar como contratada
-    - contractor: Assinar como contratante
-    - joint_debtor: Assinar como devedor solidário
-    - issuer: Assinar como emitente
-    - manager: Assinar como gestor
-    - buyer: Assinar como parte compradora
-    - seller: Assinar como parte vendedora
-    - attorney: Assinar como procurador
-    - legal_representative: Assinar como representante legal
-    - co_responsible: Assinar como responsável solidário
-    - validator: Assinar como validador
-    - ratify: Assinar para homologar
+    """Sign as Types:
+
+    - SIGN: Assinar
+    - APPROVE: Assinar para aprovar
+    - PARTY: Assinar como parte
+    - WITNESS: Assinar como testemunha
+    - INTERVENING: Assinar como interveniente
+    - RECEIPT: Assinar para acusar recebimento
+    - ENDORSER: Assinar como endossante
+    - ENDORSEE: Assinar como endossatário
+    - ADMINISTRATOR: Assinar como administrador
+    - GUARANTOR: Assinar como avalista
+    - TRANSFEROR: Assinar como cedente
+    - TRANSFEREE: Assinar como cessionário
+    - CONTRACTEE: Assinar como contratada
+    - CONTRACTOR: Assinar como contratante
+    - JOINT_DEBTOR: Assinar como devedor solidário
+    - ISSUER: Assinar como emitente
+    - MANAGER: Assinar como gestor
+    - BUYER: Assinar como parte compradora
+    - SELLER: Assinar como parte vendedora
+    - ATTORNEY: Assinar como procurador
+    - LEGAL_REPRESENTATIVE: Assinar como representante legal
+    - CO_RESPONSIBLE: Assinar como responsável solidário
+    - VALIDATOR: Assinar como validador
+    - RATIFY: Assinar para homologar
     """
     ACKNOWLEDGE = 'acknowledge'
     ADMINISTRATOR = 'administrator'
@@ -69,7 +76,7 @@ class Signer:
                  signer_key: str = None):
         self.click_sign = click_sign
         if signer_key and not metadata:
-            self.signer_key = signer_key
+            self.key = signer_key
         if metadata:
             for key, item in metadata["signer"].items():
                 setattr(self, key, item)
